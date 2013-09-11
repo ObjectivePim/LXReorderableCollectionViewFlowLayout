@@ -288,11 +288,15 @@ static NSString * const kLXCollectionViewKeyPath = @"collectionView";
             
             collectionViewCell.highlighted = YES;
             UIImageView *highlightedImageView = [[UIImageView alloc] initWithImage:[collectionViewCell LX_rasterizedImage]];
+			highlightedImageView.frame = self.currentView.bounds;
+			highlightedImageView.contentMode = UIViewContentModeCenter;
             highlightedImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             highlightedImageView.alpha = 1.0f;
             
             collectionViewCell.highlighted = NO;
             UIImageView *imageView = [[UIImageView alloc] initWithImage:[collectionViewCell LX_rasterizedImage]];
+			imageView.frame = self.currentView.bounds;
+			imageView.contentMode = UIViewContentModeCenter;
             imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             imageView.alpha = 0.0f;
             
