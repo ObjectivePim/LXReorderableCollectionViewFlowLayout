@@ -424,20 +424,27 @@ static NSString * const kLXCollectionViewKeyPath = @"collectionView";
 #pragma mark - UICollectionViewLayout overridden methods
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
-    NSArray *layoutAttributesForElementsInRect = [super layoutAttributesForElementsInRect:rect];
-    
-    for (UICollectionViewLayoutAttributes *layoutAttributes in layoutAttributesForElementsInRect) {
-        switch (layoutAttributes.representedElementCategory) {
-            case UICollectionElementCategoryCell: {
-                [self applyLayoutAttributes:layoutAttributes];
-            } break;
-            default: {
-                // Do nothing...
-            } break;
-        }
-    }
-    
-    return layoutAttributesForElementsInRect;
+    NSArray *layoutAttributes = [super layoutAttributesForElementsInRect:rect];
+	
+	NSMutableArray *newAttributes = [NSMutableArray arrayWithCapacity:[layoutAttributes count]];
+	
+    for (UICollectionViewLayoutAttributes *attributes in layoutAttributes) {
+		if ((attributes.frame.origin.x + attributes.frame.size.width <= self.collectionViewContentSize.width) &&
+			(attributes.frame.origin.y + attributes.frame.size.height <= self.collectionViewContentSize.height)) {
+			[newAttributes addObject:attributes];
+			attributes.frame = CGRectIntegral(attributes.frame);
+			switch (attributes.representedElementCategory) {
+				case UICollectionElementCategoryCell: {
+					[self applyLayoutAttributes:attributes];
+				} break;
+				default: {
+					// Do nothing...
+				} break;
+			}
+		}
+	}
+	
+	return newAttributes;
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
