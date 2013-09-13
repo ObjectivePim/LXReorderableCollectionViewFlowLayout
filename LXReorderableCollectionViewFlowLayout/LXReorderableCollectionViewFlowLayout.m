@@ -288,26 +288,42 @@ static NSString * const kLXCollectionViewKeyPath = @"collectionView";
             
             self.currentView = [[UIView alloc] initWithFrame:collectionViewCell.frame];
             
-            collectionViewCell.highlighted = YES;
-            UIImageView *highlightedImageView = [[UIImageView alloc] initWithImage:[collectionViewCell LX_rasterizedImage]];
-			highlightedImageView.frame = self.currentView.bounds;
-			highlightedImageView.contentMode = UIViewContentModeCenter;
-            highlightedImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-            highlightedImageView.alpha = 1.0f;
-            
-            collectionViewCell.highlighted = NO;
+			BOOL shouldHighlight = YES;
+			if (!collectionViewCell.highlighted && [self.delegate respondsToSelector:@selector(collectionView:shouldHighlightItemAtIndexPath:)])
+			{
+				shouldHighlight = [self.delegate collectionView:self.collectionView shouldHighlightItemAtIndexPath:currentIndexPath];
+			}
+			
+			UIImageView *highlightedImageView = nil;
+			if (shouldHighlight)
+			{
+				collectionViewCell.highlighted = YES;
+				highlightedImageView = [[UIImageView alloc] initWithImage:[collectionViewCell LX_rasterizedImage]];
+				highlightedImageView.frame = self.currentView.bounds;
+				highlightedImageView.contentMode = UIViewContentModeCenter;
+				highlightedImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+				highlightedImageView.alpha = 1.0f;
+			}
+			
+			collectionViewCell.highlighted = NO;
             UIImageView *imageView = [[UIImageView alloc] initWithImage:[collectionViewCell LX_rasterizedImage]];
 			imageView.frame = self.currentView.bounds;
 			imageView.contentMode = UIViewContentModeCenter;
             imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-            imageView.alpha = 0.0f;
+			if (shouldHighlight)
+			{
+				imageView.alpha = 0.0f;
+			}
             
             [self.currentView addSubview:imageView];
-            [self.currentView addSubview:highlightedImageView];
+			if (highlightedImageView)
+			{
+				[self.currentView addSubview:highlightedImageView];
+			}
             [self.collectionView addSubview:self.currentView];
             
             self.currentViewCenter = self.currentView.center;
-            
+			
             __weak typeof(self) weakSelf = self;
             [UIView
              animateWithDuration:0.3
@@ -317,8 +333,11 @@ static NSString * const kLXCollectionViewKeyPath = @"collectionView";
                  __strong typeof(self) strongSelf = weakSelf;
                  if (strongSelf) {
                      strongSelf.currentView.transform = CGAffineTransformMakeScale(1.1f, 1.1f);
-                     highlightedImageView.alpha = 0.0f;
-                     imageView.alpha = 1.0f;
+					 if (shouldHighlight)
+					 {
+						 highlightedImageView.alpha = 0.0f;
+						 imageView.alpha = 1.0f;
+					 }
                  }
              }
              completion:^(BOOL finished) {
