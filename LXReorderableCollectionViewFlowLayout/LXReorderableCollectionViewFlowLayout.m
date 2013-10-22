@@ -489,6 +489,13 @@ static NSString * const kLXCollectionViewKeyPath = @"collectionView";
     if ([self.panGestureRecognizer isEqual:gestureRecognizer]) {
         return (self.selectedItemIndexPath != nil);
     }
+	if ([self.longPressGestureRecognizer isEqual:gestureRecognizer])
+	{
+		CGPoint touchPoint = [gestureRecognizer locationInView:self.collectionView];
+		NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:touchPoint];
+		UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+		return [cell gestureRecognizerShouldBegin:gestureRecognizer];
+	}
     return YES;
 }
 
